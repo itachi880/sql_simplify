@@ -19,7 +19,7 @@ class Table {
   /**
    * @param {T} obj
    */
-  async creat(obj) {
+  async create(obj) {
     return await this.db_connection(
       `INSERT INTO ${this.table_name} (${Object.keys(obj).join(",")}) VALUES (${Object.values(obj)
         .map((value) => this.#escapeChar(value))
