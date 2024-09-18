@@ -1,7 +1,7 @@
 /**
  *
  * @param {import("mysql").Pool} mysql_pool
- * @returns {(sql: string) => Promise<[any[], import("mysql").MysqlError | null]>}
+ * @returns {(sql: string) => Promise<[response<any>, import("mysql").MysqlError | null]>}
  */
 module.exports.wraper = (mysql_pool) => {
   return (sql = "") => {
