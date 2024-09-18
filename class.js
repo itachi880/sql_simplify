@@ -5,24 +5,19 @@ const { wraper } = require("./mysql_promise");
  * @property {number} warningCount - The number of warnings that occurred during the execution.
  * @property {string} message - A message summarizing the execution (optional).
  * @property {number} serverStatus - The status of the server after the query execution.
- */
-/**
  * @typedef {object} Update
  * @property {number} affectedRows - The number of rows that matched the update condition.
  * @property {number} changedRows - The number of rows that were actually changed (i.e., new values differ from existing).
  * @property {number} warningCount - The number of warnings that occurred during the query execution.
  * @property {string} message - A summary of the execution, typically containing row match/change counts.
  * @property {number} serverStatus - The status of the server after the query execution.
- */
-/**
+
  * @typedef {object} Insert
  * @property {number} affectedRows - The number of rows that were inserted.
  * @property {number} insertId - The ID of the inserted row, particularly useful for tables with an AUTO_INCREMENT field.
  * @property {number} warningCount - The number of warnings that occurred during the query execution.
  * @property {string} message - A summary of the execution, such as the number of inserted rows.
  * @property {number} serverStatus - The status of the server after the query execution.
- */
-/**
  * @template Table_columns
  */
 module.exports.Table = class Table {
@@ -54,7 +49,7 @@ module.exports.Table = class Table {
      */
     const [data, error] = await this.db_connection(
       `INSERT INTO ${this.table_name} (${Object.keys(obj).join(",")}) VALUES (${Object.values(obj)
-        .map((value) => Table.#escapeChar(value))
+        .map((value) => "'" + Table.#escapeChar(value + "") + "'")
         .join(",")})`
     );
     if (error) {
@@ -65,7 +60,6 @@ module.exports.Table = class Table {
     return [obj, null];
   }
   /**
-   *
    * @returns {Promise<[Table_columns[]|null,(import("mysql").MysqlError|null)]>}
    */
   async findAll() {
@@ -77,7 +71,7 @@ module.exports.Table = class Table {
    * @property {string} value - Description of the column property.
    * @property {string} operateur - Description of the column property.
    * @typedef {Record<keyof T, Schema>} All
-   * @typedef {Object} Condition
+   * @typedef {object} Condition
    * @property {(Condition|fullcondition)[]} and - Logical `AND` conditions
    * @property {(Condition|fullcondition)[]} or - Logical `OR` conditions
    * @typedef {(All & Condition)} fullcondition
@@ -111,7 +105,6 @@ module.exports.Table = class Table {
   }
   /**
    * Performs a join query with a related table.
-   *
    * @template Related_Table_columns
    * @param {object} param0 - Parameters for the join operation.
    * @param {Table<Related_Table_columns>} param0.related_table - The related table to join with.
