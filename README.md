@@ -17,7 +17,7 @@ A simple and lightweight Object-Relational Mapping (ORM) library for Node.js, de
 
 To install the package, run the following command:
 
-```nodejs
+```node js
 npm install sql_simplify
 ```
 
@@ -27,15 +27,15 @@ npm install sql_simplify
 
 First, you need to create a sql pool connection. Here’s an example:
 
-```nodejs
+```node js
 const sql = require("mysql");
 const { wraper } = require("sql_simplify/wraper");
 
 const sql_pool = sql.createPool({
-host: "localhost",
-user: "your_username",
-password: "your_password",
-database: "your_database",
+  host: "localhost",
+  user: "your_username",
+  password: "your_password",
+  database: "your_database",
 });
 
 const db_connection = wraper(sql_pool);
@@ -45,32 +45,31 @@ const db_connection = wraper(sql_pool);
 
 You can define your table schema as follows:
 
-```nodejs
+```node js
 const { Table } = require("./class");
 
 const userSchema = {
-    id: {
-        type: Table.types.integer,
-        autoInc: true,
-        primary_key: true
-        },
-    name: {
-        type: Table.types.string,
-        default: "",
-        primary_key: false
-        },
-    email: {
-        type: Table.types.string,
-        default: "",
-        primary_key: false
-        },
-    };
+  id: {
+    type: Table.types.integer,
+    autoInc: true,
+    primary_key: true,
+  },
+  name: {
+    type: Table.types.string,
+    default: "",
+    primary_key: false,
+  },
+  email: {
+    type: Table.types.string,
+    default: "",
+    primary_key: false,
+  },
+};
 
 const userTable = new Table({
-schema: userSchema,
-db_connection,
-table_name: "users",
-
+  schema: userSchema,
+  db_connection,
+  table_name: "users",
 });
 
 // Create the table in the database
@@ -85,16 +84,15 @@ You can use the defined table to perform CRUD operations:
 
 ### example 1
 
-```nodejs
+```node js
 const newUser = { name: "John Doe", email: "john@example.com" };
 
 const [createdUser, createError] = await userTable.create(newUser);
 
 if (createError) {
-console.error("Error creating user:", createError);
-}
-else {
-console.log("Created user:", createdUser);
+  console.error("Error creating user:", createError);
+} else {
+  console.log("Created user:", createdUser);
 }
 ```
 
@@ -106,41 +104,40 @@ console.log("Created user:", createdUser);
 
 ### example
 
-```nodejs
-
-const [createdUser, createError] = await userTable.create( { name: "John Doe",
-//sholde get intellessens for email feald
+```node js
+const [createdUser, createError] = await userTable.create({
+  name: "John Doe",
+  //sholde get intellessens for email feald
 });
 
 if (createError) {
-console.error("Error creating user:", createError);
-}
-else {
-console.log("Created user:", createdUser);
+  console.error("Error creating user:", createError);
+} else {
+  console.log("Created user:", createdUser);
 }
 ```
 
 ### 2. Read All
 
-```nodejs
+```node js
 const [users, findAllError] = await userTable.findAll();
 if (findAllError) {
-console.error("Error fetching users:", findAllError);
+  console.error("Error fetching users:", findAllError);
 } else {
-console.log("All users:", users);
+  console.log("All users:", users);
 }
 ```
 
 ### 3. Find By Condition
 
-```nodejs
+```node js
 const [foundUsers, findByError] = await userTable.findBy({
-email: { value: "john@example.com", operateur: "=" },
+  email: { value: "john@example.com", operateur: "=" },
 });
 if (findByError) {
-console.error("Error finding user:", findByError);
+  console.error("Error finding user:", findByError);
 } else {
-console.log("Found users:", foundUsers);
+  console.log("Found users:", foundUsers);
 }
 ```
 
@@ -148,19 +145,19 @@ console.log("Found users:", foundUsers);
 
 ### 1. simple condition
 
-```nodejs
+```node js
 //ex 1
-const condition1 ={
-feald:{operator:"=",value:10}
-}
+const condition1 = {
+  feald: { operator: "=", value: 10 },
+};
 //like you said in sql
-"... WHERE feald = 10"
+("... WHERE feald = 10");
 //ex 2
-const condition2 ={
-feald:{operator:">=",value:10}
-}
+const condition2 = {
+  feald: { operator: ">=", value: 10 },
+};
 //like you said in sql
-"... WHERE feald >= 10"
+("... WHERE feald >= 10");
 //you get the idea lastley the operation there as the same as the ones used in sql wich ("=",">=","<=","!=")
 ```
 
@@ -168,7 +165,7 @@ feald:{operator:">=",value:10}
 
 #### the fun part begine
 
-```nodejs
+```node js
 //ex1
 const condition1={
     and:[
@@ -219,28 +216,25 @@ const condition1={
 
 ### 4. Update
 
-```nodejs
-const [updateResult, updateError] = await userTable.update(
-{ name: "John Smith" },
-{ id: { value: 1, operateur: "=" } }
-);
+```node js
+const [updateResult, updateError] = await userTable.update({ name: "John Smith" }, { id: { value: 1, operateur: "=" } });
 if (updateError) {
-console.error("Error updating user:", updateError);
+  console.error("Error updating user:", updateError);
 } else {
-console.log("Updated user:", updateResult);
+  console.log("Updated user:", updateResult);
 }
 ```
 
 ### 5. Delete
 
-```nodejs
+```node js
 const [deleteResult, deleteError] = await userTable.delete({
-id: { value: 1, operateur: "=" },
+  id: { value: 1, operateur: "=" },
 });
 if (deleteError) {
-console.error("Error deleting user:", deleteError);
+  console.error("Error deleting user:", deleteError);
 } else {
-console.log("Deleted user:", deleteResult);
+  console.log("Deleted user:", deleteResult);
 }
 ```
 
