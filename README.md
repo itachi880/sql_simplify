@@ -117,6 +117,8 @@ if (createError) {
 }
 ```
 
+> about the creat methode if you have a column that is json the create methode will turn it to string so whene defining schema if you want a column to hold json assigne the `Table.types.object` to it the only problem is when reading the data the orm will not convert the longtext (json) to object javascript you have to manualy `JSON.parse(row.jsonColumn)` but the insertion is ok the creat methode will handel the pharse for you or you can doit manually
+
 ### 2. Read All
 
 ```javascript
@@ -189,7 +191,7 @@ const condition1={
   ],
 }
 //like you said in sql
-"...
+`...
     WHERE
          ((feald1 = 10)
          and
@@ -198,7 +200,7 @@ const condition1={
                 or
                 (fealde3 < "2022-01-10")
             )
-         ) "
+         ) `
     /*
     i think you get the idea if you still dont understand
     correctly how it work you can use the static privet methode
@@ -319,17 +321,19 @@ const { relatedTable } = require("./related_table");
 // Use the object instance of the model
 const joinResult = await userTable.getByJoin({
   related_table: relatedTable,
-  get: ["users.name", "relatedTable.columnName"],
   // Example 1: Standard usage
-  get: [`${usersTable.table_name}.column`, "relatedTable.columnName"],
+  get: ["users.name", "relatedTable.columnName"],
   // Example 2: Using dynamic table names
+  get: [`${usersTable.table_name}.column`, `${relatedTable.table_name}.columnName`],
+  // Example 3: let the db decide ich column come from wich table
   get: ["column1", "column2"],
-  // Example 3: Table columns selection
   join_type: "INNER",
   columns: { on: "relatedTable.userId", ref: "users.id" },
   condition: { "users.email": { value: "john@example.com", operateur: "=" } },
 });
 ```
+
+> the only benefit from the therd methode of get if the intellessens from your ide
 
 ## Handling Column Ambiguity in Joins
 
@@ -348,4 +352,4 @@ const joinResult = await userTable.getByJoin({
 });
 ```
 
-By specifying aliases, you can easily differentiate between the columns of the joined tables, ensuring that your queries are clear and error-free.
+> By specifying aliases, you can easily differentiate between the columns of the joined tables, ensuring that your queries are clear and error-free.
