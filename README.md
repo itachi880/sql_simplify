@@ -264,7 +264,7 @@ const joinResult = await userTable.getByJoin({
 
 ##
 
-#### the use case i want to talk about wich is "get: ["column1","column2"]" is a two edged sord from a prespective it shold give you `intellessens` of the colmns from the tow tables the `primary` key and the `foregen` key tables but if the primary and the foregen key hase the same name like we say the first table is `users` and the second is `post` and we have `post.id` and `users.id` you may face a issue about the db dont know wich table id you reference for by saing `id`
+> the use case i want to talk about wich is "get: ["column1","column2"]" is a two edged sord from a prespective it shold give you `intellessens` of the colmns from the tow tables the `primary` key and the `foregen` key tables but if the primary and the foregen key hase the same name like we say the first table is `users` and the second is `post` and we have `post.id` and `users.id` you may face a issue about the db dont know wich table id you reference for by saing `id`
 
 ##
 
