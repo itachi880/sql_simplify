@@ -17,7 +17,7 @@ A simple and lightweight Object-Relational Mapping (ORM) library for Node.js, de
 
 To install the package, run the following command:
 
-```javascript
+```npm
 npm install sql_simplify
 ```
 
@@ -29,7 +29,7 @@ First, you need to create a sql pool connection. Here’s an example:
 
 ```javascript
 const sql = require("mysql");
-const { wraper } = require("sql_simplify/wraper");
+const { wraper } = require("sql_simplify");
 
 const sql_pool = sql.createPool({
   host: "localhost",
@@ -39,6 +39,9 @@ const sql_pool = sql.createPool({
 });
 
 const db_connection = wraper(sql_pool);
+//db_connection is a function in this case that execut sql code like this
+const [res, err] = await db_connection("select * from users");
+//each time you want to execut sql you will use the retuen function from the wraper function
 ```
 
 ### Defining a Table Schema
@@ -46,7 +49,7 @@ const db_connection = wraper(sql_pool);
 You can define your table schema as follows:
 
 ```javascript
-const { Table } = require("./class");
+const { Table } = require("sql_simplify");
 
 const userSchema = {
   id: {
