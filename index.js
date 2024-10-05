@@ -147,10 +147,10 @@ class Table {
    * @param {("INNER"|"LEFT"|"RIGHT"|"OUTER")} param0.join_type - The type of join to perform.
    * @param {{ on: keyof Related_Table_columns, ref: keyof Table_columns }} param0.columns - Join condition.
    * @param {Condition} param0.condition
-   * @returns {Promise<[Table_columns[]|null,(import("mysql").MysqlError|null)]>}
+   * @returns {Promise<[(TableDataType & Related_Table_columns )[]|null,(import("mysql").MysqlError|null)]>}
    */
   async getByJoin({ related_table, get, join_type, columns, condition }) {
-    let sql = "SELECT " + get.join(" , ") + " FROM " + related_table.table_name + " " + join_type + " JOIN ON" + columns.on + "=" + columns.ref;
+    let sql = "SELECT " + get.join(" , ") + " FROM " + related_table.table_name + " " + join_type + " JOIN ON " + `${related_table.table_name}.` + columns.on + "=" + `${this.table_name}.` + columns.ref;
     if (condition) sql += ` WHERE ${Table.#escapeChar(Table.#parse_condition(condition))}`;
     return await this.db_connection(sql);
   }
@@ -246,3 +246,6 @@ module.exports.wraper = (mysql_pool) => {
     });
   };
 };
+const s = new Table({ db_connection: false, schema: { id: { primary_key: true } }, table_name: "t1" });
+const b = new Table({ db_connection: false, schema: { id: { primary_key: true }, name: { default: "uknown" } }, table_name: "t2" });
+s.getByJoin({ join_type: "INNER", related_table: b, columns: { on: "id", ref: "id" }, get: ["id", "name"] });
