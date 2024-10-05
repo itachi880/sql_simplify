@@ -246,6 +246,3 @@ module.exports.wraper = (mysql_pool) => {
     });
   };
 };
-const s = new Table({ db_connection: false, schema: { id: { primary_key: true } }, table_name: "t1" });
-const b = new Table({ db_connection: false, schema: { id: { primary_key: true }, name: { default: "uknown" } }, table_name: "t2" });
-s.getByJoin({ join_type: "INNER", related_table: b, columns: { on: "id", ref: "id" }, get: ["id", "name"] });
