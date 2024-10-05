@@ -200,9 +200,14 @@ const condition1={
             )
          ) "
     /*
-    i think you get the idea if you still dont understand        correctly how it work you can use the static privet methode parseCondition from the tabel it accept a object `condition` and return the sql condition string
+    i think you get the idea if you still dont understand
+    correctly how it work you can use the static privet methode
+    parseCondition from the tabel it accept a object `condition`
+    and return the sql condition string
+
+    lastly the and and or acept tabel of fealdes or other
+    conditions as objects like
     */
-    //lastly the and and or acept tabel of fealdes or other conditions as objects like
     and:[
         {or:
             [
@@ -211,7 +216,7 @@ const condition1={
         },
         fieald
         ]
-    each field is a aboject of the fielad {value ,operator}
+    //each field is a aboject of the fielad {value ,operator}
 ```
 
 ### 4. Update
@@ -242,15 +247,26 @@ if (deleteError) {
 
 To perform a join operation, use the getByJoin method:
 
-const { relatedTable } = require("./relatedClass"); // Import the related table class
-
+```node js
+const { relatedTable } = require("./related_table");
+//use the object instence of the model
 const joinResult = await userTable.getByJoin({
-related_table: relatedTable,
-get: ["users.name", "relatedTable.columnName"],
-join_type: "INNER",
-columns: { on: "relatedTable.userId", ref: "users.id" },
-condition: { "users.email": { value: "john@example.com", operateur: "=" } },
+  related_table: relatedTable,
+  get: ["users.name", "relatedTable.columnName"], //you can use it like this and also like
+
+  get: [`{usersTable.table_name}.column`, "relatedTable.columnName"], //or like
+  get: ["column1", "column2"], //we shold talk about this
+  join_type: "INNER",
+  columns: { on: "relatedTable.userId", ref: "users.id" },
+  condition: { "users.email": { value: "john@example.com", operateur: "=" } },
 });
+```
+
+##
+
+#### the use case i want to talk about wich is "get: ["column1","column2"]" is a two edged sord from a prespective it shold give you `intellessens` of the colmns from the tow tables the `primary` key and the `foregen` key tables but if the primary and the foregen key hase the same name like we say the first table is `users` and the second is `post` and we have `post.id` and `users.id` you may face a issue about the db dont know wich table id you reference for by saing `id`
+
+##
 
 ## API Documentation
 
