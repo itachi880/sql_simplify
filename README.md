@@ -281,9 +281,26 @@ const joinResult = await userTable.getByJoin({
 - getByJoin(params): Promise<[Table_columns[]|null, sqlError|null]>
 - create_table_in_db(): Promise<[data|null, sqlError|null]>
 
-### Error Handling
+## Error Handling
 
-The methods return a tuple of [data, error], where data contains the result of the query, and error contains any errors that occurred.
+The `sql_simplify` ORM adopts a Golang-like approach to error handling, ensuring that errors are explicitly returned and can be handled in a structured manner.
+
+All ORM methods return a tuple `[data, error]`, where:
+
+- `data`: Contains the result of the query.
+- `error`: Contains any error that occurred during execution.
+
+### Example:
+
+```javascript
+const [returnedData, errorInProccess] = await table.methode(data);
+
+if (errorInProccess) {
+  console.error("Error :", errorInProccess);
+} else {
+  console.log("process success:", returnedData);
+}
+```
 
 ## License
 
@@ -292,3 +309,43 @@ This project is licensed under the MIT License. See the LICENSE file for details
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request.
+
+### Joining Tables
+
+To perform a join operation, use the `getByJoin` method:
+
+```javascript
+const { relatedTable } = require("./related_table");
+// Use the object instance of the model
+const joinResult = await userTable.getByJoin({
+  related_table: relatedTable,
+  get: ["users.name", "relatedTable.columnName"],
+  // Example 1: Standard usage
+  get: [`${usersTable.table_name}.column`, "relatedTable.columnName"],
+  // Example 2: Using dynamic table names
+  get: ["column1", "column2"],
+  // Example 3: Table columns selection
+  join_type: "INNER",
+  columns: { on: "relatedTable.userId", ref: "users.id" },
+  condition: { "users.email": { value: "john@example.com", operateur: "=" } },
+});
+```
+
+## Handling Column Ambiguity in Joins
+
+When using the `get: ["column1", "column2"]` option, there is a potential for ambiguity if the tables being joined have columns with the same name (e.g., `users.id` and `post.id`). In such cases, it's important to explicitly specify the table name along with the column to avoid conflicts.
+
+For example, if both tables have a column named `id`, specify the table name like this:
+
+```js
+const joinResult = await userTable.getByJoin({
+  related_table: relatedTable,
+  get: ["users.id AS userId", "posts.id AS postId"],
+  // Specify aliases to avoid ambiguity
+  join_type: "INNER",
+  columns: { on: "posts.userId", ref: "users.id" },
+  condition: { "users.email": { value: "john@example.com", operateur: "=" } },
+});
+```
+
+By specifying aliases, you can easily differentiate between the columns of the joined tables, ensuring that your queries are clear and error-free.
