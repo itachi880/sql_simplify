@@ -17,7 +17,7 @@ A simple and lightweight Object-Relational Mapping (ORM) library for Node.js, de
 
 To install the package, run the following command:
 
-```node js
+```javascript
 npm install sql_simplify
 ```
 
@@ -27,7 +27,7 @@ npm install sql_simplify
 
 First, you need to create a sql pool connection. Here’s an example:
 
-```node js
+```javascript
 const sql = require("mysql");
 const { wraper } = require("sql_simplify/wraper");
 
@@ -45,7 +45,7 @@ const db_connection = wraper(sql_pool);
 
 You can define your table schema as follows:
 
-```node js
+```javascript
 const { Table } = require("./class");
 
 const userSchema = {
@@ -84,7 +84,7 @@ You can use the defined table to perform CRUD operations:
 
 ### example 1
 
-```node js
+```javascript
 const newUser = { name: "John Doe", email: "john@example.com" };
 
 const [createdUser, createError] = await userTable.create(newUser);
@@ -104,7 +104,7 @@ if (createError) {
 
 ### example
 
-```node js
+```javascript
 const [createdUser, createError] = await userTable.create({
   name: "John Doe",
   //sholde get intellessens for email feald
@@ -119,7 +119,7 @@ if (createError) {
 
 ### 2. Read All
 
-```node js
+```javascript
 const [users, findAllError] = await userTable.findAll();
 if (findAllError) {
   console.error("Error fetching users:", findAllError);
@@ -130,7 +130,7 @@ if (findAllError) {
 
 ### 3. Find By Condition
 
-```node js
+```javascript
 const [foundUsers, findByError] = await userTable.findBy({
   email: { value: "john@example.com", operateur: "=" },
 });
@@ -145,7 +145,7 @@ if (findByError) {
 
 ### 1. simple condition
 
-```node js
+```javascript
 //ex 1
 const condition1 = {
   feald: { operator: "=", value: 10 },
@@ -165,7 +165,7 @@ const condition2 = {
 
 #### the fun part begine
 
-```node js
+```javascript
 //ex1
 const condition1={
     and:[
@@ -221,7 +221,7 @@ const condition1={
 
 ### 4. Update
 
-```node js
+```javascript
 const [updateResult, updateError] = await userTable.update({ name: "John Smith" }, { id: { value: 1, operateur: "=" } });
 if (updateError) {
   console.error("Error updating user:", updateError);
@@ -232,7 +232,7 @@ if (updateError) {
 
 ### 5. Delete
 
-```node js
+```javascript
 const [deleteResult, deleteError] = await userTable.delete({
   id: { value: 1, operateur: "=" },
 });
@@ -247,7 +247,7 @@ if (deleteError) {
 
 To perform a join operation, use the getByJoin method:
 
-```node js
+```javascript
 const { relatedTable } = require("./related_table");
 //use the object instence of the model
 const joinResult = await userTable.getByJoin({
