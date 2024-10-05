@@ -1,3 +1,4 @@
+"use-strict";
 const { wraper } = require("./mysql_promise");
 /**
  * @typedef {object} Delete
@@ -54,6 +55,10 @@ module.exports.Table = class Table {
   constructor({ schema = {}, db_connection = false, table_name = "" }) {
     this.schema = schema;
     this.table_name = table_name;
+    this.table_id_name = null;
+    Object.entries(schema).forEach((column) => {
+      if (column[1].primary_key) this.table_id_name = column[0];
+    });
     /**
      * @type {(sql:string)=>Promise<[response<any>,import("mysql").MysqlError|null]>}
      */
@@ -74,18 +79,19 @@ module.exports.Table = class Table {
      */
     const [data, error] = await this.db_connection(
       `INSERT INTO ${this.table_name} (${Object.keys(obj).join(",")}) VALUES (${Object.values(obj)
-        .map((value) => "'" + Table.#escapeChar(value + "") + "'")
+        .map((value) => "'" + Table.#escapeChar(typeof value == "object" ? JSON.stringify(value) : value + "") + "'")
         .join(",")})`
     );
     if (error) {
       console.log(" error message : " + error.message, "\nsql query : " + error.sqlMessage);
       return [null, error];
     }
-    if (this.table_id_name) obj[this.table_id_name] = data.insertId;
+    if (data.insertId && this.table_id_name) obj[this.table_id_name] = data.insertId;
     return [obj, null];
   }
   /**
-   * @returns {Promise<[TableDataType[]|null,(import("mysql").MysqlError|null)]>}
+   *
+   * @returns {Promise<[(TableDataType[]|null),(import("mysql").MysqlError|null)]>}
    */
   async findAll() {
     return await this.db_connection(`SELECT * FROM ${this.table_name}`);
@@ -109,17 +115,17 @@ module.exports.Table = class Table {
   }
   /**
    * Updates existing rows in the database.
-   * @param {TableDataType} old - An object containing the new values to set.
+   * @param {TableDataType} new_data - An object containing the new values to set.
    * @param {fullcondition} by - The condition to identify which rows to update.
    * @returns {Promise<[Update|null, (import("mysql").MysqlError|null)]>}
    * @example
    * update({column_name:"new val"},{id:1})
    */
 
-  async update(old = {}, by = {}) {
+  async update(new_data = {}, by = {}) {
     return await this.db_connection(`
       UPDATE  ${this.table_name}
-      SET ${Object.entries(old)
+      SET ${Object.entries(new_data)
         .map((columnUpd) => columnUpd[0] + "=" + '"' + Table.#escapeChar(columnUpd[1]) + '"')
         .join(",")}
       ${Object.keys(by).length != 0 ? " WHERE " + Table.#parse_condition(by) : ""}`);
@@ -131,7 +137,7 @@ module.exports.Table = class Table {
   async delete(if_is = {}) {
     return await this.db_connection(`
       DELETE FROM ${this.table_name}
-      ${Object.keys(obj).length != 0 ? "WHERE " + Table.#parse_condition(if_is) : ""}`);
+      ${Object.keys(if_is).length != 0 ? "WHERE " + Table.#parse_condition(if_is) : ""}`);
   }
   /**
    * Performs a join query with a related table.
@@ -152,7 +158,7 @@ module.exports.Table = class Table {
 
   async create_table_in_db() {
     const [data, error] = await this.db_connection(`CREATE TABLE ${this.table_name} (${Table.#getcolumns_data_type_sting(this.schema)})`);
-    if (error) console.log("error :" + error.message, " \nquery : " + error.sqlMessage);
+    if (error) console.log("error :" + error.message, " \n query : " + error.sqlMessage);
     return [data, error];
   }
   async row_sql(sql = "") {
@@ -184,8 +190,7 @@ module.exports.Table = class Table {
       if (key === "and" || key === "or") {
         sql.push(`(${val.map(Table.#parse_condition).join(" " + key + " ")})`);
       } else {
-        console.log(key, val);
-        sql.push(`${key} ${val.operateur}"${Table.#escapeChar(val.value + "")}"`);
+        sql.push(`${key} ${val.operateur} " ${Table.#escapeChar(val.value + "")}"`);
       }
     }
     return sql.join(" and ");
@@ -212,7 +217,7 @@ module.exports.Table = class Table {
       "!": "\\!",
       "@": "\\@",
     };
-    console.log(string);
+
     for (let i = 0; i < string.length; i++) {
       str += badChars[string[i]] || string[i];
     }
