@@ -16,7 +16,13 @@
     "url": "https://github.com/itachi880/sql_simplify/issues"
   },
   "homepage": "https://github.com/itachi880/sql_simplify#readme",
-  "dependencies": {
-    "mysql": "^2.18.1"
-  }
+  "keywords": [
+    "mysql",
+    "mysql orm",
+    "orm sql",
+    "sql_simplify",
+    "sql/promise",
+    "sequelize",
+    "prisma"
+  ]
 }
