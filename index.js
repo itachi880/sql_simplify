@@ -37,6 +37,35 @@
 /**
  * @template  Table_columns
  */
+/**
+ * @example
+ * const { Table } = require("sql_simplify");
+
+const userSchema = {
+  id: {
+    type: Table.types.integer,
+    autoInc: true,
+    primary_key: true,
+  },
+  name: {
+    type: Table.types.string,
+    default: "",
+    primary_key: false,
+  },
+  email: {
+    type: Table.types.string,
+    default: "",
+    primary_key: false,
+  },
+};
+
+const userTable = new Table({
+  schema: userSchema,
+  db_connection,
+  table_name: "users",
+});
+
+ */
 class Table {
   static types = {
     string: "VARCHAR(255)",
@@ -68,7 +97,16 @@ class Table {
    * @typedef {Record.<keyof Table_columns, ColumnDefinition["default"]>} TableDataType
    */
   /**
-   * Creates a new instance of the table.
+   * @example
+   * const newUser = { name: "John Doe", email: "john@example.com" };
+    const [createdUser, createError] = await userTable.create(newUser);
+
+    if (createError) {
+      console.error("Error creating user:", createError);
+    } else {
+      console.log("Created user:", createdUser);
+    }
+   * @description Creates a new instance of the table.
    * @param {TableDataType} obj - An object containing the values to insert.
    * @returns {Promise<[(Insert|null), (import("mysql").MysqlError|null)]>}
    */
@@ -91,6 +129,13 @@ class Table {
   /**
    *
    * @returns {Promise<[(TableDataType[]|null),(import("mysql").MysqlError|null)]>}
+   * @example
+   * const [users, findAllError] = await userTable.findAll();
+    if (findAllError) {
+      console.error("Error fetching users:", findAllError);
+    } else {
+      console.log("All users:", users);
+    }
    */
   async findAll() {
     return await this.db_connection(`SELECT * FROM ${this.table_name}`);
@@ -107,7 +152,15 @@ class Table {
    * @typedef {(All & Condition)} fullcondition
    * @param {Condition} obj
    * @returns {Promise<[Table_columns[]|null,(import("mysql").MysqlError|null)]>}
-   *
+   *@example
+      const [foundUsers, findByError] = await userTable.findBy({
+      email: { value: "john@example.com", operateur: "=" },
+    });
+    if (findByError) {
+      console.error("Error finding user:", findByError);
+    } else {
+      console.log("Found users:", foundUsers);
+    }
    **/
   async findBy(obj) {
     return await this.db_connection(`SELECT * FROM ${this.table_name} WHERE ${Table.#parse_condition(obj)}`);
@@ -118,7 +171,12 @@ class Table {
    * @param {fullcondition} by - The condition to identify which rows to update.
    * @returns {Promise<[Update|null, (import("mysql").MysqlError|null)]>}
    * @example
-   * update({column_name:"new val"},{id:1})
+   * const [updateResult, updateError] = await userTable.update({ name: "John Smith" }, { id: { value: 1, operateur: "=" } });
+      if (updateError) {
+        console.error("Error updating user:", updateError);
+      } else {
+        console.log("Updated user:", updateResult);
+      }
    */
 
   async update(new_data = {}, by = {}) {
@@ -132,6 +190,15 @@ class Table {
   /**
    * @param {fullcondition} if_is can be {} if the deletion has to affect every column be carfull what you put here
    * @returns {Promise<[data<Delete>,(import("mysql").MysqlError|null)]>}
+   * @example
+   * const [deleteResult, deleteError] = await userTable.delete({
+      id: { value: 1, operateur: "=" },
+    });
+    if (deleteError) {
+      console.error("Error deleting user:", deleteError);
+    } else {
+      console.log("Deleted user:", deleteResult);
+    }
    */
   async delete(if_is = {}) {
     return await this.db_connection(`
@@ -140,6 +207,22 @@ class Table {
   }
   /**
    * Performs a join query with a related table.
+  * @example
+  *const { relatedTable } = require("./related_table");
+// Use the object instance of the model
+const joinResult = await userTable.getByJoin({
+  related_table: relatedTable,
+  // Example 1: Standard usage
+  get: ["users.name", "relatedTable.columnName"],
+  // Example 2: Using dynamic table names
+  get: [`${usersTable.table_name}.column`, `${relatedTable.table_name}.columnName`],
+  // Example 3: let the db decide ich column come from wich table
+  get: ["column1", "column2"],
+  join_type: "INNER",
+  columns: { on: "relatedTable.userId", ref: "users.id" },
+  condition: { "users.email": { value: "john@example.com", operateur: "=" } },
+});
+  //for the get property go check documentation
    * @template Related_Table_columns
    * @param {object} param0 - Parameters for the join operation.
    * @param {Table<Related_Table_columns>} param0.related_table - The related table to join with.
@@ -154,7 +237,13 @@ class Table {
     if (condition) sql += ` WHERE ${Table.#escapeChar(Table.#parse_condition(condition))}`;
     return await this.db_connection(sql);
   }
-
+  /**
+ * 
+ * @example
+ * 
+  // Create the table in the database
+  userTable.create_table_in_db();
+ */
   async create_table_in_db() {
     const [data, error] = await this.db_connection(`CREATE TABLE ${this.table_name} (${Table.#getcolumns_data_type_sting(this.schema)})`);
     if (error) console.log("error :" + error.message, " \n query : " + error.sqlMessage);
@@ -225,7 +314,20 @@ class Table {
 }
 module.exports.Table = Table;
 /**
- *
+ *@example
+ const sql = require("mysql");
+ const { wraper } = require("sql_simplify");
+  const sql_pool = sql.createPool({
+    host: "localhost",
+    user: "your_username",
+    password: "your_password",
+    database: "your_database",
+  });
+
+const db_connection = wraper(sql_pool);
+//db_connection is a function in this case that execut sql code like this
+const [res, err] = await db_connection("select * from users");
+//each time you want to execut sql you will use the retuen function from the wraper function
  * @param {import("mysql").Pool} mysql_pool
  * @returns {(sql: string) => Promise<[response<any>, import("mysql").MysqlError | null]>}
  */
