@@ -283,6 +283,7 @@ const joinResult = await userTable.getByJoin({
     }
     return sql.join(" and ");
   }
+
   static #escapeChar(string) {
     let str = "";
     const badChars = {
